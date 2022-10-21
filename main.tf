@@ -48,13 +48,23 @@ resource "aws_internet_gateway" "mylab-igw" {
     }
 }
 
-resource "aws_security_group" "mylab-sgw" {
+resource "aws_security_group" "mylab-sg" {
     name = "mylab-sg"
     description = "To allow inbound outbound traffic"
     vpc_id = aws_vpc.mylab-vpc.id 
 
     tags = {
         Name = "mylab-sg"
+    }
+
+    # Since Jenkins runs on port 8080, we are allowing all traffic from the internet
+  # to be able ot access the EC2 instance on port 8080
+  ingress {
+    description = "Allow all traffic through port 8080"
+    from_port = "8080"
+    to_port = "8080"
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
     }
 
     ingress {
@@ -92,3 +102,67 @@ resource "aws_route_table" "mylab-rtb" {
     # subnet_id = aws_subnet.mylab-subnet-2.id 
      route_table_id = aws_route_table.mylab-rtb.id 
    }
+  # create Jenkins EC2 instance 
+resource "aws_instance" "jenkins-server" {
+  ami           = "ami-05fa00d4c63e32376"
+  instance_type = "t2.micro"
+  key_name = "gurpreet-key"
+  vpc_security_group_ids = [aws_security_group.mylab-sg.id]
+  subnet_id = aws_subnet.mylab-subnet-1.id
+  associate_public_ip_address = true
+  user_data = file("./install.sh")
+
+  tags = {
+    Name = "jenkins-server"
+  }
+
+}
+
+ # create Ansible EC2 instance 
+resource "aws_instance" "Ansible-server" {
+  ami           = "ami-05fa00d4c63e32376"
+  instance_type = "t2.micro"
+  key_name = "gurpreet-key"
+  vpc_security_group_ids = [aws_security_group.mylab-sg.id]
+  subnet_id = aws_subnet.mylab-subnet-1.id
+  associate_public_ip_address = true
+  user_data = file("./installAnsible.sh")
+
+  tags = {
+    Name = "Ansible-server"
+  }
+
+}
+
+ 
+ # create Docker EC2 instance 
+resource "aws_instance" "Docker-server" {
+  ami           = "ami-05fa00d4c63e32376"
+  instance_type = "t2.micro"
+  key_name = "gurpreet-key"
+  vpc_security_group_ids = [aws_security_group.mylab-sg.id]
+  subnet_id = aws_subnet.mylab-subnet-1.id
+  associate_public_ip_address = true
+  user_data = file("./installdocker.sh")
+
+  tags = {
+    Name = "Docker-server"
+  }
+
+}
+
+ # create nexus EC2 instance 
+resource "aws_instance" "nexus-server" {
+  ami           = "ami-05fa00d4c63e32376"
+  instance_type = "t2.medium"
+  key_name = "gurpreet-key"
+  vpc_security_group_ids = [aws_security_group.mylab-sg.id]
+  subnet_id = aws_subnet.mylab-subnet-1.id
+  associate_public_ip_address = true
+  user_data = file("./installdocker.sh")
+
+  tags = {
+    Name = "nexus-server"
+  }
+
+}
