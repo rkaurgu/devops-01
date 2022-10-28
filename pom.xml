@@ -4,7 +4,7 @@
   <groupId>com.ssvkart5lab</groupId>
   <artifactId>ssvkart5devops</artifactId>
   <packaging>war</packaging>
-  <version>0.0.4-SNAPSHOT</version>
+  <version>0.0.1</version>
   <name>ssvkart5devops</name>
   <url>http://maven.apache.org</url>
   <dependencies>
